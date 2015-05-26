@@ -1,0 +1,40 @@
+#!/bin/bash
+
+########################################################
+# Batch calculate for all the videos the displacement  #
+# values.                                              #
+########################################################
+
+# Find the directory of this script.
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# Set a subdirectory where all the output of the ImageJ Macro is.
+SUBDIR=Experiment
+
+# Delete any output file that may be a left over from the last run
+if [ -a $DIR/$SUBDIR/Results.txt ]
+	then
+		rm $DIR/$SUBDIR/Results.txt
+fi
+
+# Calculate for all the output files of the ImageJ marco
+# in the subdirectory the verrtical and horizontal displacements
+# and the number of larvae
+# $i is the ith file with the *.res extension in the subdirectory.
+# The videos were recorded with 10 fps
+# The witdh of the container was 780 pixels, or just 48 mm.
+# Number of pixels to ignore at the top of the video. Always set to 0.
+# Number of pixels to ignore at the bottom of the video. Always set to 0.
+# Use mTrack version 2
+# Width in mm, needed with the framerate to convert the displacement
+# from pixels to mm/s.
+for i in $DIR/$SUBDIR/*.res;
+do perl	$DIR/DisplacementCalculator.pl	$i	10	780	0	0	2	48;
+done
+
